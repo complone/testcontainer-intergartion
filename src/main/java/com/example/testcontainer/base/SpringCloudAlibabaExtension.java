@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SpringCloudAlibabaExtension implements BeforeAllCallback, AfterAllCallback,
         BeforeEachCallback {
     
-    private final boolean LOCAL_MODE = Objects.equals(System.getProperty("local"), "true");
+    private final boolean LOCAL_MODE = Objects.equals(System.getProperty("local"), "false");
     
     private DockerComposeContainer<?> compose;
     
