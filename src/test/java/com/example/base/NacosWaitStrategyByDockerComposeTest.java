@@ -11,7 +11,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import java.io.File;
 
 public class NacosWaitStrategyByDockerComposeTest {
-    private static final int REDIS_PORT = 8848;
+    private static final int NACOS_PORT = 8848;
     
     private DockerComposeContainer<?> environment;
     
@@ -27,7 +27,7 @@ public class NacosWaitStrategyByDockerComposeTest {
     
     @Test
     public void testWaitOnListeningPort() {
-        environment.withExposedService("nacos_standalone", REDIS_PORT, Wait.forListeningPort());
+        environment.withExposedService("nacos_standalone", NACOS_PORT, Wait.forListeningPort());
         
         try {
             environment.starting(Description.createTestDescription(Object.class, "name"));
