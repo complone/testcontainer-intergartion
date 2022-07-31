@@ -1,26 +1,26 @@
 package com.example.base;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.Description;
-import org.rnorth.visibleassertions.VisibleAssertions;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.DockerComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.File;
 
+@Slf4j
 public class NacosWaitStrategyByDockerComposeTest {
     private static final int NACOS_PORT = 8848;
     
     private DockerComposeContainer<?> environment;
     
-    @Before
+    @BeforeAll
     public final void setUp() {
         environment = new DockerComposeContainer<>(new File("src/test/resources/nacos-compose-test.yml"));
     }
     
-    @After
+    @AfterAll
     public final void cleanUp() {
         environment.stop();
     }
@@ -30,10 +30,10 @@ public class NacosWaitStrategyByDockerComposeTest {
         environment.withExposedService("nacos_standalone", NACOS_PORT, Wait.forListeningPort());
         
         try {
-            environment.starting(Description.createTestDescription(Object.class, "name"));
-            VisibleAssertions.pass("Docker compose should start after waiting for listening port");
+            environment.start();
+            log.info("Docker compose should start after waiting for listening port");
         } catch (RuntimeException e) {
-            VisibleAssertions.fail(
+            log.error(
                     "Docker compose should start after waiting for listening port with failed with: " + e
             );
         }

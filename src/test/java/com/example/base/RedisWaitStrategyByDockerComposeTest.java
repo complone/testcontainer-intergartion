@@ -1,9 +1,9 @@
 package com.example.base;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.Description;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.rnorth.visibleassertions.VisibleAssertions;
 import org.testcontainers.containers.DockerComposeContainer;
@@ -16,18 +16,19 @@ import java.time.Duration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 
+@Slf4j
 public class RedisWaitStrategyByDockerComposeTest {
     
     private static final int REDIS_PORT = 6379;
     
     private DockerComposeContainer<?> environment;
     
-    @Before
+    @BeforeAll
     public final void setUp() {
         environment = new DockerComposeContainer<>(new File("src/test/resources/redis-compose-test.yml"));
     }
     
-    @After
+    @AfterAll
     public final void cleanUp() {
         environment.stop();
     }
@@ -37,10 +38,10 @@ public class RedisWaitStrategyByDockerComposeTest {
         environment.withExposedService("redis_1", REDIS_PORT, Wait.forListeningPort());
         
         try {
-            environment.starting(Description.createTestDescription(Object.class, "name"));
-            VisibleAssertions.pass("Docker compose should start after waiting for listening port");
+            environment.start();
+            log.info("Docker compose should start after waiting for listening port");
         } catch (RuntimeException e) {
-            VisibleAssertions.fail(
+            log.error(
                     "Docker compose should start after waiting for listening port with failed with: " + e
             );
         }
@@ -54,10 +55,10 @@ public class RedisWaitStrategyByDockerComposeTest {
                 .withTailChildContainers(true);
         
         try {
-            environment.starting(Description.createTestDescription(Object.class, "name"));
-            VisibleAssertions.pass("Docker compose should start after waiting for listening port");
+            environment.start();
+            log.info("Docker compose should start after waiting for listening port");
         } catch (RuntimeException e) {
-            VisibleAssertions.fail(
+            log.error(
                     "Docker compose should start after waiting for listening port with failed with: " + e
             );
         }
@@ -73,8 +74,7 @@ public class RedisWaitStrategyByDockerComposeTest {
         VisibleAssertions.assertThrows(
                 "waiting on an invalid http path times out",
                 RuntimeException.class,
-                () -> environment.starting(Description.createTestDescription(Object.class, "name"))
-        );
+                () -> environment.start());
     }
     
     @Test
@@ -94,8 +94,8 @@ public class RedisWaitStrategyByDockerComposeTest {
         VisibleAssertions.assertThrows(
                 "waiting on one failing strategy to time out",
                 RuntimeException.class,
-                () -> environment.starting(Description.createTestDescription(Object.class, "name"))
-        );
+                () -> environment.start());
+        
     }
     
     @Test
