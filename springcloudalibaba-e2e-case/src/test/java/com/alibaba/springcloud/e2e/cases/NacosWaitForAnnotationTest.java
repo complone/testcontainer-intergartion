@@ -13,7 +13,7 @@ public class NacosWaitForAnnotationTest {
     
     @BeforeAll
     public static void setUp() {
-    
+
     }
     
     @Test

@@ -61,10 +61,10 @@ final class SpringCloudAlibabaExtension
             runInDockerContainer(context);
         }
         
-        
-        final Class<?> clazz = context.getRequiredTestClass();
-        Stream.of(clazz.getDeclaredFields())
-              .filter(it -> Modifier.isStatic(it.getModifiers()));
+//
+//        final Class<?> clazz = context.getRequiredTestClass();
+//        Stream.of(clazz.getDeclaredFields())
+//              .filter(it -> Modifier.isStatic(it.getModifiers()));
     }
 
     private void runInLocal() {

@@ -2,6 +2,7 @@ package com.alibaba.springcloud.e2e.cases.nacos.naming;
 
 import com.alibaba.nacos.api.PropertyKeyConst;
 import com.alibaba.nacos.api.common.Constants;
+import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingFactory;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.listener.Event;
@@ -10,8 +11,9 @@ import com.alibaba.nacos.api.naming.listener.NamingEvent;
 import com.alibaba.nacos.api.naming.pojo.Instance;
 import com.alibaba.nacos.api.naming.pojo.ListView;
 import com.alibaba.springcloud.e2e.core.SpringCloudAlibaba;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 
@@ -25,6 +27,7 @@ import static com.alibaba.springcloud.e2e.cases.nacos.naming.base.NamingBase.*;
 /**
  * Nacos多租户测试
  */
+@Slf4j
 @SpringCloudAlibaba(composeFiles = "docker/nacos-compose-test.yml", serviceName = "nacos-standalone")
 public class MultiTenant_ITCase {
     
@@ -40,13 +43,18 @@ public class MultiTenant_ITCase {
     
     
     @BeforeAll
-    public static void setUp() throws Exception{
-        Thread.sleep(60000L);
-        naming = NamingFactory.createNamingService("127.0.0.1"+ ":" + port);
+    public static void setUp() {
+        
+        try {
+            naming = NamingFactory.createNamingService("127.0.0.1"+ ":" + port);
+        }
+        catch (NacosException e) {
+            e.printStackTrace();
+        }
     
         while (true) {
             if (!"UP".equals(naming.getServerStatus())) {
-                Thread.sleep(1000L);
+               
                 continue;
             }
             break;
@@ -55,13 +63,22 @@ public class MultiTenant_ITCase {
         Properties properties = new Properties();
         properties.put(PropertyKeyConst.NAMESPACE, "namespace-1");
         properties.put(PropertyKeyConst.SERVER_ADDR, "127.0.0.1" + ":" + port);
-        naming1 = NamingFactory.createNamingService(properties);
-    
+        try {
+            naming1 = NamingFactory.createNamingService(properties);
+        }
+        catch (NacosException e) {
+            e.printStackTrace();
+        }
     
         properties = new Properties();
         properties.put(PropertyKeyConst.NAMESPACE, "namespace-2");
         properties.put(PropertyKeyConst.SERVER_ADDR, "127.0.0.1" + ":" + port);
-        naming2 = NamingFactory.createNamingService(properties);
+        try {
+            naming2 = NamingFactory.createNamingService(properties);
+        }
+        catch (NacosException e) {
+            e.printStackTrace();
+        }
     }
     
     /**
@@ -102,6 +119,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(9)
     public void multipleTenant_multiGroup_registerInstance() throws Exception {
         String serviceName = randomDomainName();
         
@@ -134,6 +152,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(8)
     public void multipleTenant_equalIP() throws Exception {
         String serviceName = randomDomainName();
         naming1.registerInstance(serviceName, "11.11.11.11", 80);
@@ -166,6 +185,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(7)
     public void multipleTenant_selectInstances() throws Exception {
         String serviceName = randomDomainName();
         naming1.registerInstance(serviceName, TEST_IP_4_DOM_1, TEST_PORT);
@@ -196,6 +216,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(6)
     public void multipleTenant_group_equalIP() throws Exception {
         String serviceName = randomDomainName();
         naming1.registerInstance(serviceName, TEST_GROUP_1,"11.11.11.11", 80);
@@ -226,6 +247,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(5)
     public void multipleTenant_group_getInstances() throws Exception {
         String serviceName = randomDomainName();
         System.out.println(serviceName);
@@ -252,6 +274,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(4)
     public void multipleTenant_getServicesOfServer() throws Exception {
         
         String serviceName = randomDomainName();
@@ -272,6 +295,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(3)
     public void multipleTenant_group_getServicesOfServer() throws Exception {
         
         String serviceName = randomDomainName();
@@ -296,6 +320,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(2)
     public void multipleTenant_subscribe() throws Exception {
         
         String serviceName = randomDomainName();
@@ -325,6 +350,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(2)
     public void multipleTenant_group_subscribe() throws Exception {
         
         String serviceName = randomDomainName();
@@ -358,6 +384,7 @@ public class MultiTenant_ITCase {
      * @ExpectResult :
      */
     @Test
+    @Order(1)
     public void multipleTenant_unSubscribe() throws Exception {
         
         String serviceName = randomDomainName();
